@@ -51,8 +51,8 @@ class Ray:
 
     def draw(self, pt):
         if pt is not None:
-            self.lines.append(self.toile.create_line(self.particle.x, self.particle.y, pt[0], pt[1], fill='white'))
             self.len = ((self.particle.x - pt[0]) ** 2 + (self.particle.y - pt[1]) ** 2) ** 0.5
+            # self.lines.append(self.toile.create_line(self.particle.x, self.particle.y, pt[0], pt[1], fill='white'))
 
     def update(self, walls):
         self.toile.delete(self.vec)
