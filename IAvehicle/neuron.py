@@ -9,6 +9,9 @@ class Neuron:
     learn_rate = 0.8
 
     def __init__(self, nb_inputs):
+        """
+        :param nb_inputs: {int} Number of inputs.
+        """
         self.__weights = []
         self.__bias = 0
         self.__output = 0

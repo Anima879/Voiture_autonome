@@ -2,6 +2,12 @@ class Ray:
     toile = None
 
     def __init__(self, particle, dir, toile=None):
+        """
+
+        :param particle: object which the ray is attached to
+        :param dir:
+        :param toile:
+        """
         self.particle = particle
         self.dir = dir
         self.vec = self.toile.create_line(particle.x, particle.y, particle.x + self.dir[0] * 10,

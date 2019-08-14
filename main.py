@@ -24,6 +24,12 @@ def generate_random_boundary(n):
 
 
 def generate_population(n):
+    """
+        Generate initial population.
+        Brain at index i control vehicle at index i
+    :param n:
+    :return:
+    """
     brains = []
     vehicles = []
     for i in range(n):
@@ -35,6 +41,12 @@ def generate_population(n):
 
 
 def move(brain, vehicle):
+    """
+        brain move its vehicle
+    :param brain:
+    :param vehicle:
+    :return:
+    """
     datas = [ray.len for ray in vehicle.rays]
     brain.feed_forward(datas)
 
@@ -44,13 +56,13 @@ def move(brain, vehicle):
         d = ((150 - 750) ** 2 + (500 - 100) ** 2) ** 0.5
         crashed_malus = 100
         brain.performance = d - d_v + crashed_malus
-    elif round(brain._get_layer_output(-1)[0]) == 1 and round(brain._get_layer_output(-1)[1]) == 1:
+    elif round(brain.get_layer_output(-1)[0]) == 1 and round(brain.get_layer_output(-1)[1]) == 1:
         vehicle.move(vehicle.velocity)
-    elif round(brain._get_layer_output(-1)[0]) == 0 and round(brain._get_layer_output(-1)[1]) == 0:
+    elif round(brain.get_layer_output(-1)[0]) == 0 and round(brain.get_layer_output(-1)[1]) == 0:
         vehicle.move(- vehicle.velocity)
-    elif round(brain._get_layer_output(-1)[0]) == 1 and round(brain._get_layer_output(-1)[1]) == 0:
+    elif round(brain.get_layer_output(-1)[0]) == 1 and round(brain.get_layer_output(-1)[1]) == 0:
         vehicle.rotate(vehicle.pas_angle)
-    elif round(brain._get_layer_output(-1)[0]) == 0 and round(brain._get_layer_output(-1)[1]) == 1:
+    elif round(brain.get_layer_output(-1)[0]) == 0 and round(brain.get_layer_output(-1)[1]) == 1:
         vehicle.rotate(- vehicle.pas_angle)
 
 
@@ -111,10 +123,10 @@ def main():
                     d_v = ((v.x - 750) ** 2 + (v.y - 100) ** 2) ** 0.5
                     d = ((150 - 750) ** 2 + (500 - 100) ** 2) ** 0.5
                     index = vehicles.index(v)
-                    brains[index].set_performance(d - d_v)
+                    brains[index].performance = d - d_v
 
         brains = sorted(brains, key=lambda p: p.performance, reverse=True)
-        # Datas storage before selection
+        # Data storage before selection
         best_distance_each_epoch.append(d_start_end - brains[0].performance)
         mean_distance_each_epoch.append(sum([(d_start_end - b.performance) for b in brains]) / len(brains))
 

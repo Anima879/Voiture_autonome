@@ -8,6 +8,15 @@ class Vehicle:
     walls = None
 
     def __init__(self, x, y, r, heading, fov=180, toile=None):
+        """
+            Model a basic steering vehicle.
+        :param x:
+        :param y:
+        :param r:
+        :param heading:
+        :param fov:
+        :param toile:
+        """
         if toile is None:
             self.toile = Vehicle.toile
         if self.toile is None:
@@ -20,6 +29,7 @@ class Vehicle:
         self.heading = heading
         self.velocity = 5
         self.rays = []
+
         self.is_crashed = False
 
         for angle in self.frange(heading - fov / 2, heading + fov / 2, 45):
@@ -74,6 +84,7 @@ class Vehicle:
             uy = (wall.y2 - wall.y1) / wall.length
 
             d = ((self.x - wall.x1) * ux + (self.y - wall.y1) * uy) / m.sqrt(ux ** 2 + uy ** 2)
+            # Coordinate of the orthogonal projection
             xh = wall.x1 + d / m.sqrt(ux ** 2 + uy ** 2) * ux
             yh = wall.y1 + d / m.sqrt(ux ** 2 + uy ** 2) * uy
 

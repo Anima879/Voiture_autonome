@@ -10,8 +10,8 @@ class Network:
 
     def __init__(self, pattern, nb_inputs=1):
         """
-        :param pattern:
-        :param nb_inputs:
+        :param pattern: {list} : pattern of the network
+        :param nb_inputs: {int} : number of inputs for the first layer
         """
 
         self.__layers = []
@@ -30,12 +30,14 @@ class Network:
             self.__layers.append(deepcopy(temp_layer))
             nb_inputs = len(self.__layers[-1])
 
-        self.performance = 0
-
-    def set_performance(self, perf):
-        self.performance = perf
+        self.__performance = 0
 
     def update_pattern(self):
+        """
+            Update network's pattern based on current layers.
+            Useful when layers is altered during evolution.
+        :return:
+        """
         temp_pattern = []
         for layer in self.__layers:
             temp_pattern.append(len(layer))
@@ -51,21 +53,22 @@ class Network:
 
         return "--------------------\n" + str(self.__pattern) + "\n" + neuron + "--------------------\n"
 
-    def _get_layer_output(self, layer_index):
+    def get_layer_output(self, layer_index):
         """
-            Method used to return layer's outputs
+            Method used to return outputs of one specified layer.
         :param layer_index: {int} : index of the layer
         :return:
         """
 
         outputs = []
-        for n in self.__layers[layer_index]:
+        for n in self.layers[layer_index]:
             outputs.append(n.output)
 
         return outputs
 
     def feed_forward(self, inputs):
         """
+            Propagate the data in the neuronal network.
         :param inputs: {List} : List of inputs for the first layer.
         :return:
         """
@@ -80,16 +83,21 @@ class Network:
             for n in layer:
                 n.feed_forward(features)
 
-            features = deepcopy(self._get_layer_output(index))
+            features = deepcopy(self.get_layer_output(index))
             index += 1
 
         self.__output = [d.output for d in self.__layers[-1]]
 
     def mutation(self):
+        """
+            Change randomly the weights and the bias of each neuron with the normal law.
+        :return:
+        """
         for layer in self.__layers:
             for n in layer:
                 n.mutation()
 
+    # Accessors and mutator
     def _get_pattern(self):
         return self.__pattern
 
@@ -114,7 +122,14 @@ class Network:
     def _set_nb_inputs(self, n):
         self.__nb_inputs = n
 
+    def _set_performance(self, p):
+        self.performance = p
+
+    def _get_performance(self):
+        return self.performance
+
     pattern = property(_get_pattern, _set_pattern)
     layers = property(_get_layers, _set_layers)
     genotype = property(_get_genotype, _set_genotype)
     nb_inputs = property(_get_nb_inputs, _set_nb_inputs)
+    performance = property(_get_performance, _set_performance)
