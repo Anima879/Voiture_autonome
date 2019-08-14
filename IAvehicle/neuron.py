@@ -62,6 +62,9 @@ class Neuron:
         for i in range(len(self.__weights)):
             self.__weights[i] = w[i]
 
+    output = property(_get_output, _set_output)
+    weights = property(_get_weights, _set_weights)
+
     @classmethod
     def set__learn_rate(cls, learn_rate):
         Neuron.learn_rate = learn_rate
@@ -70,11 +73,11 @@ class Neuron:
 def main():
     n = Neuron(2)
     n.feed_forward([1, 1])
-    print(n._get_output())
+    print(n.output)
 
     n.mutation()
     n.feed_forward([1, 1])
-    print(n._get_output())
+    print(n.output)
 
     print(n)
 
