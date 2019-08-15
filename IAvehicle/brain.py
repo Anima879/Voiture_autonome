@@ -30,7 +30,7 @@ class Network:
             self.__layers.append(deepcopy(temp_layer))
             nb_inputs = len(self.__layers[-1])
 
-        self.__performance = 0
+        self.performance = 0
 
     def update_pattern(self):
         """
@@ -122,14 +122,7 @@ class Network:
     def _set_nb_inputs(self, n):
         self.__nb_inputs = n
 
-    def _set_performance(self, p):
-        self.performance = p
-
-    def _get_performance(self):
-        return self.performance
-
     pattern = property(_get_pattern, _set_pattern)
     layers = property(_get_layers, _set_layers)
     genotype = property(_get_genotype, _set_genotype)
     nb_inputs = property(_get_nb_inputs, _set_nb_inputs)
-    performance = property(_get_performance, _set_performance)

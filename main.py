@@ -97,7 +97,7 @@ def main():
     Vehicle.walls = walls
 
     size_pop = 10
-    brains, vehicles = generate_population(10)
+    brains, vehicles = generate_population(size_pop)
     master.update()
     death_rate = 0.5
     epoch = 100
@@ -109,12 +109,13 @@ def main():
     for i in range(epoch):
         print("Epoch : ", i)
         print("Conduite")
-        count = 0
-        while sum([v.is_crashed for v in vehicles]) != len(vehicles) and count < 200:
-            count += 1
+        clock = 300
+        while sum([v.is_crashed for v in vehicles]) != len(vehicles) and clock != 0:
+            clock -= 1
             for b, v in zip(brains, vehicles):
-                move(b, v)
-                master.update()
+                if not v.is_crashed:
+                    move(b, v)
+                    master.update()
 
         print("Selection")
         if sum([v.is_crashed for v in vehicles]) != len(vehicles):
@@ -133,7 +134,7 @@ def main():
         print([brain.performance for brain in brains])
         brains = deepcopy(brains[:int(death_rate * size_pop)])
 
-        print("Reporduction")
+        print("Reproduction")
         while len(brains) <= size_pop:
             child = deepcopy(choice(brains))
             child.mutation()
