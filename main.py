@@ -52,10 +52,10 @@ def move(brain, vehicle):
 
     if vehicle.check_collision():
         vehicle.is_crashed = True
-        d_v = ((vehicle.x - 750) ** 2 + (vehicle.y - 100) ** 2) ** 0.5
-        d = ((150 - 750) ** 2 + (500 - 100) ** 2) ** 0.5
-        crashed_malus = 100
-        brain.performance = d - d_v + crashed_malus
+        # d_v = ((vehicle.x - 750) ** 2 + (vehicle.y - 100) ** 2) ** 0.5
+        # d = ((150 - 750) ** 2 + (500 - 100) ** 2) ** 0.5
+        # crashed_malus = 100
+        # brain.performance = d - d_v + crashed_malus
     elif round(brain.get_layer_output(-1)[0]) == 1 and round(brain.get_layer_output(-1)[1]) == 1:
         vehicle.move(vehicle.velocity)
     elif round(brain.get_layer_output(-1)[0]) == 0 and round(brain.get_layer_output(-1)[1]) == 0:
@@ -64,6 +64,16 @@ def move(brain, vehicle):
         vehicle.rotate(vehicle.pas_angle)
     elif round(brain.get_layer_output(-1)[0]) == 0 and round(brain.get_layer_output(-1)[1]) == 1:
         vehicle.rotate(- vehicle.pas_angle)
+
+
+def compute_fitness(vehicle, brain, x_start, y_start, x_end, y_end):
+    d_v = ((vehicle.x - x_end) ** 2 + (vehicle.y - y_end) ** 2) ** 0.5
+    d = ((x_start - x_end) ** 2 + (y_start - y_end) ** 2) ** 0.5
+    crashed_malus = 100
+    if vehicle.is_crashed:
+        brain.performance = d - d_v + crashed_malus
+    else:
+        brain.performance = d - d_v
 
 
 def main():
@@ -118,13 +128,8 @@ def main():
                     master.update()
 
         print("Selection")
-        if sum([v.is_crashed for v in vehicles]) != len(vehicles):
-            for v in vehicles:
-                if not v.is_crashed:
-                    d_v = ((v.x - 750) ** 2 + (v.y - 100) ** 2) ** 0.5
-                    d = ((150 - 750) ** 2 + (500 - 100) ** 2) ** 0.5
-                    index = vehicles.index(v)
-                    brains[index].performance = d - d_v
+        for b, v in zip(brains, vehicles):
+            compute_fitness(v, b, x_start, x_end, y_start, y_end)
 
         brains = sorted(brains, key=lambda p: p.performance, reverse=True)
         # Data storage before selection
