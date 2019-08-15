@@ -1,3 +1,6 @@
+from boundary import Limit
+
+
 class Ray:
     toile = None
 
@@ -28,6 +31,8 @@ class Ray:
             self.toile.delete(elt)
 
     def cast(self, wall):
+        if isinstance(wall, Limit):
+            return
         den = (wall.x1 - wall.x2) * (self.particle.y - (self.particle.y + self.dir[1])) - (wall.y1 - wall.y2) * (
                 self.particle.x - (self.particle.x + self.dir[0]))
         if den == 0:

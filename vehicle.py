@@ -1,4 +1,6 @@
 import math as m
+
+from boundary import Limit
 from ray import Ray
 
 
@@ -29,6 +31,10 @@ class Vehicle:
         self.heading = heading
         self.velocity = 5
         self.rays = []
+
+        self.distance = 0
+        self.passed_checkpoint = []
+        self.has_passed_checkpoint = False
 
         self.is_crashed = False
 
@@ -61,6 +67,7 @@ class Vehicle:
         dy = dl * m.sin(angle)
         self.x += dx
         self.y += dy
+        self.distance += (dx**2 + dy**2)**0.5
         self.toile.move(self.gobj, dx, dy)
         self.update()
 
@@ -103,6 +110,11 @@ class Vehicle:
                 if y_min <= yh <= y_max:
                     between = True
 
+            if isinstance(wall, Limit) and self.r > d and between:
+                self.has_passed_checkpoint = True
+                if wall not in self.passed_checkpoint:
+                    self.passed_checkpoint.append(wall)
+                return False
             if self.r > d and between:
                 return True
         return False

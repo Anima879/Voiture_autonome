@@ -23,7 +23,7 @@ class Boundary:
 
 
 class Limit(Boundary):
-    nbr_instance = 0
+    instance = 0
     toile = Boundary.toile
 
     def __init__(self, x1, y1, x2, y2, width=0, toile=None):
@@ -31,3 +31,5 @@ class Limit(Boundary):
         self.color = 'blue'
         self.toile.delete(self.gobj)
         self.gobj = self.toile.create_line(x1, y1, x2, y2, fill=self.color)
+        Limit.instance += 1
+        self.is_passed = False

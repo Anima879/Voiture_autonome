@@ -52,10 +52,6 @@ def move(brain, vehicle):
 
     if vehicle.check_collision():
         vehicle.is_crashed = True
-        # d_v = ((vehicle.x - 750) ** 2 + (vehicle.y - 100) ** 2) ** 0.5
-        # d = ((150 - 750) ** 2 + (500 - 100) ** 2) ** 0.5
-        # crashed_malus = 100
-        # brain.performance = d - d_v + crashed_malus
     elif round(brain.get_layer_output(-1)[0]) == 1 and round(brain.get_layer_output(-1)[1]) == 1:
         vehicle.move(vehicle.velocity)
     elif round(brain.get_layer_output(-1)[0]) == 0 and round(brain.get_layer_output(-1)[1]) == 0:
@@ -71,9 +67,9 @@ def compute_fitness(vehicle, brain, x_start, y_start, x_end, y_end):
     d = ((x_start - x_end) ** 2 + (y_start - y_end) ** 2) ** 0.5
     crashed_malus = 100
     if vehicle.is_crashed:
-        brain.performance = d - d_v + crashed_malus
+        brain.performance = len(vehicle.passed_checkpoint) * vehicle.distance - crashed_malus
     else:
-        brain.performance = d - d_v
+        brain.performance = len(vehicle.passed_checkpoint) * vehicle.distance
 
 
 def main():
@@ -93,24 +89,36 @@ def main():
 
     d_start_end = ((150 - 750)**2 + (500 - 100)**2)**0.5
 
+    # Extern boundaries
     walls = [Boundary(0, 0, 1000, 0), Boundary(0, 0, 0, 600), Boundary(0, 600, 1000, 600), Boundary(1000, 0, 1000, 600)]
+
+    # Track
     walls.append(Boundary(101, 600, 100, 299))
-    walls.append(Boundary(201, 600, 200, 299))
+    walls.append(Boundary(201, 550, 200, 299))
     walls.append(Boundary(100, 300, 300, 50))
     walls.append(Boundary(200, 300, 300, 150))
     walls.append(Boundary(300, 50, 800, 50))
-    walls.append(Boundary(300, 150, 800, 150))
+    walls.append(Boundary(300, 150, 700, 150))
+    walls.append(Boundary(800, 50, 900, 300))
+    walls.append(Boundary(700, 150, 750, 300))
+    walls.append(Boundary(900, 300, 750, 500))
+    walls.append(Boundary(750, 300, 650, 450))
+    walls.append(Boundary(750, 500, 500, 550))
+    walls.append(Boundary(650, 450, 500, 500))
+    walls.append(Boundary(500, 500, 201, 550))
+    walls.append(Boundary(500, 550, 201, 600))
 
-    l = Limit(751, 50, 750, 150)
-    walls.append(l)
+    checkpoints = [Limit(100, 299, 200, 299), Limit(301, 150, 300, 50), Limit(800, 50, 700, 150),
+                   Limit(900, 300, 750, 300), Limit(750, 500, 650, 450), Limit(500, 550, 501, 500),
+                   Limit(201, 550, 201, 600)]
 
-    Vehicle.walls = walls
+    Vehicle.walls = walls + checkpoints
 
     size_pop = 10
     brains, vehicles = generate_population(size_pop)
     master.update()
     death_rate = 0.5
-    epoch = 100
+    epoch = 10000
 
     # datas
     best_distance_each_epoch = []
@@ -125,6 +133,11 @@ def main():
             for b, v in zip(brains, vehicles):
                 if not v.is_crashed:
                     move(b, v)
+                    # Reset clock if a checkpoint is passed
+                    if v.has_passed_checkpoint:
+                        v.has_passed_checkpoint = False
+                        clock = 300
+                        print("Clock reset")
                     master.update()
 
         print("Selection")
@@ -147,6 +160,7 @@ def main():
 
         for v in vehicles:
             v.teleport(x_start, y_start, 270)
+            v.passed_checkpoint = []
             v.update()
             v.is_crashed = False
             master.update()
