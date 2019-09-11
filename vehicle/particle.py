@@ -1,5 +1,5 @@
 import math as m
-from ray import Ray
+from vehicle.ray import Ray
 
 
 class Particle:

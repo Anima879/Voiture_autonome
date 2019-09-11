@@ -1,17 +1,23 @@
-import tkinter as tk
 from copy import deepcopy
-from particle import Particle
+from vehicle.particle import Particle
 from boundary import Boundary, Limit
 from toile import Toile
-from ray import Ray
-from vehicle import Vehicle
+from vehicle.ray import Ray
+from vehicle.vehicle import Vehicle
+from track import Track
 from random import *
 from IAvehicle.brain import Network
-import time
+from setup.setup import *
 import matplotlib.pyplot as plt
+import time
 
 
 def generate_random_boundary(n):
+    """
+        Generate n random boundaries
+    :param n: {int}
+    :return: {list} List of boundaries created
+    """
     walls = []
     for i in range(n):
         x1 = randint(0, 1000)
@@ -27,13 +33,13 @@ def generate_population(n):
     """
         Generate initial population.
         Brain at index i control vehicle at index i
-    :param n:
-    :return:
+    :param n: {int} Size of the population
+    :return: {list, list} Lists of brains and vehicles created.
     """
     brains = []
     vehicles = []
     for i in range(n):
-        brains.append(Network([5, 5, 4], 5))
+        brains.append(Network([5, 5, 2], 5))
         v = Vehicle(150, 500, 10, 270)
         vehicles.append(v)
 
@@ -62,9 +68,8 @@ def move(brain, vehicle):
         vehicle.rotate(- vehicle.pas_angle)
 
 
-def compute_fitness(vehicle, brain, x_start, y_start, x_end, y_end):
-    d_v = ((vehicle.x - x_end) ** 2 + (vehicle.y - y_end) ** 2) ** 0.5
-    d = ((x_start - x_end) ** 2 + (y_start - y_end) ** 2) ** 0.5
+def compute_fitness(vehicle, brain):
+    # apply a malus if vehicle crashed into a wall.
     crashed_malus = 100
     if vehicle.is_crashed:
         brain.performance = len(vehicle.passed_checkpoint) * vehicle.distance - crashed_malus
@@ -75,24 +80,32 @@ def compute_fitness(vehicle, brain, x_start, y_start, x_end, y_end):
 def main():
     root = tk.Tk()
     root.title('Raycasting')
+
+    # Setup windows, WIP.
+    # setup = Setup(root)
+    # setup.mainloop()
+    # setup.destroy()
+
     master = Toile(root)
+
+    # Share master.toile's pointer for every object which needs it therefore it can alter the "toile".
     Boundary.toile = master.toile
     Particle.toile = master.toile
     Ray.toile = master.toile
     Vehicle.toile = master.toile
+    Track.toile = master.toile
 
+    # Start of the vehicles
     x_start = 150
     y_start = 500
-
-    x_end = 750
-    y_end = 100
-
-    d_start_end = ((150 - 750)**2 + (500 - 100)**2)**0.5
+    master.toile.create_oval(x_start - 3, y_start - 3, x_start + 3, y_start + 3, fill='red')
 
     # Extern boundaries
     walls = [Boundary(0, 0, 1000, 0), Boundary(0, 0, 0, 600), Boundary(0, 600, 1000, 600), Boundary(1000, 0, 1000, 600)]
 
-    # Track
+    # Track(x_start, y_start, 100, 25)
+
+    # Handmade track
     walls.append(Boundary(101, 600, 100, 299))
     walls.append(Boundary(201, 550, 200, 299))
     walls.append(Boundary(100, 300, 300, 50))
@@ -112,18 +125,17 @@ def main():
                    Limit(900, 300, 750, 300), Limit(750, 500, 650, 450), Limit(500, 550, 501, 500),
                    Limit(201, 550, 201, 600)]
 
+    # Share walls' pointer so Vehicle can "see" the walls
     Vehicle.walls = walls + checkpoints
 
     size_pop = 10
     brains, vehicles = generate_population(size_pop)
+    # Initialization of the canvas
     master.update()
     death_rate = 0.5
     epoch = 10000
 
-    # datas
-    best_distance_each_epoch = []
-    mean_distance_each_epoch = []
-
+    # master.mainloop()
     for i in range(epoch):
         print("Epoch : ", i)
         print("Conduite")
@@ -137,17 +149,13 @@ def main():
                     if v.has_passed_checkpoint:
                         v.has_passed_checkpoint = False
                         clock = 300
-                        print("Clock reset")
                     master.update()
 
         print("Selection")
         for b, v in zip(brains, vehicles):
-            compute_fitness(v, b, x_start, x_end, y_start, y_end)
+            compute_fitness(v, b)
 
         brains = sorted(brains, key=lambda p: p.performance, reverse=True)
-        # Data storage before selection
-        best_distance_each_epoch.append(d_start_end - brains[0].performance)
-        mean_distance_each_epoch.append(sum([(d_start_end - b.performance) for b in brains]) / len(brains))
 
         print([brain.performance for brain in brains])
         brains = deepcopy(brains[:int(death_rate * size_pop)])
@@ -164,10 +172,6 @@ def main():
             v.update()
             v.is_crashed = False
             master.update()
-
-    plt.plot(best_distance_each_epoch)
-    plt.plot(mean_distance_each_epoch)
-    plt.show()
 
 
 if __name__ == '__main__': main()

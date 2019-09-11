@@ -15,6 +15,7 @@ class Ray:
         self.dir = dir
         self.vec = self.toile.create_line(particle.x, particle.y, particle.x + self.dir[0] * 10,
                                           particle.y + self.dir[1] * 10, fill='white')
+        self.shown = False
         self.lines = []
         self.pts = []
 
@@ -63,7 +64,8 @@ class Ray:
     def draw(self, pt):
         if pt is not None:
             self.len = ((self.particle.x - pt[0]) ** 2 + (self.particle.y - pt[1]) ** 2) ** 0.5
-            # self.lines.append(self.toile.create_line(self.particle.x, self.particle.y, pt[0], pt[1], fill='white'))
+            if self.shown:
+                self.lines.append(self.toile.create_line(self.particle.x, self.particle.y, pt[0], pt[1], fill='white'))
 
     def update(self, walls):
         self.toile.delete(self.vec)

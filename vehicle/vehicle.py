@@ -1,12 +1,12 @@
 import math as m
 
 from boundary import Limit
-from ray import Ray
+from vehicle.ray import Ray
 
 
 class Vehicle:
     toile = None
-    pas_angle = 1
+    pas_angle = 10
     walls = None
 
     def __init__(self, x, y, r, heading, fov=180, toile=None):
@@ -19,6 +19,8 @@ class Vehicle:
         :param fov:
         :param toile:
         """
+
+        # Check if "toile" exists
         if toile is None:
             self.toile = Vehicle.toile
         if self.toile is None:
@@ -67,7 +69,7 @@ class Vehicle:
         dy = dl * m.sin(angle)
         self.x += dx
         self.y += dy
-        self.distance += (dx**2 + dy**2)**0.5
+        self.distance += (dx ** 2 + dy ** 2) ** 0.5
         self.toile.move(self.gobj, dx, dy)
         self.update()
 
@@ -77,7 +79,8 @@ class Vehicle:
         self.heading = heading
         self.toile.delete(self.gobj, self.direction)
         self.gobj = self.toile.create_oval(x - self.r, y - self.r, x + self.r, y + self.r, fill='white')
-        self.direction = self.toile.create_line(self.x, self.y, self.x + 1.5 * self.r * m.cos(m.radians(heading)), self.y +
+        self.direction = self.toile.create_line(self.x, self.y, self.x + 1.5 * self.r * m.cos(m.radians(heading)),
+                                                self.y +
                                                 1.5 * self.r * m.sin(m.radians(heading)), fill='white', arrow='last')
 
     def rotate(self, d_theta):

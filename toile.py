@@ -2,12 +2,12 @@ import tkinter as tk
 
 
 class Toile(tk.Frame):
-    dimension = (1000, 600)
 
     def __init__(self, root, **kwargs):
-        tk.Frame.__init__(self, root, width=Toile.dimension[0], height=Toile.dimension[1], **kwargs)
+        self.dimension = (1000, 600)
+        tk.Frame.__init__(self, root, width=self.dimension[0], height=self.dimension[1], **kwargs)
         self.grid()
-        self.toile = tk.Canvas(self, width=Toile.dimension[0], height=Toile.dimension[1], bg='black')
+        self.toile = tk.Canvas(self, width=self.dimension[0], height=self.dimension[1], bg='black')
         self.toile.grid()
 
         # Attributes :
